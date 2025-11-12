@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Customer Profile</title>
+</head>
+<body>
+
+<h2>Your Customer Profile</h2>
+
+<p>{{ msg }}</p>
+
+<form method="POST" action="/user/register_customer">
+    <label>Your Name:</label><br>
+    <input type="text" value="{{ session.username }}" readonly><br><br>
+
+    <label>Phone:</label><br>
+    <input type="text" name="phone" value="{{ customer[2] if customer else '' }}" required><br><br>
+
+    <label>Email:</label><br>
+    <input type="email" name="email" value="{{ customer[3] if customer else '' }}" required><br><br>
+
+    <button type="submit">Save</button>
+</form>
+
+{% if customer %}
+<h3>Saved Profile</h3>
+<table border="1" cellpadding="5">
+    <tr><th>Name</th><td>{{ customer[1] }}</td></tr>
+    <tr><th>Phone</th><td>{{ customer[2] }}</td></tr>
+    <tr><th>Email</th><td>{{ customer[3] }}</td></tr>
+</table>
+{% endif %}
+
+<br>
+<a href="/user_dashboard">Back to Dashboard</a>
+
+</body>
+</html>

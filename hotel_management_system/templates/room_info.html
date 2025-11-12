@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rooms</title>
+</head>
+<body>
+  <h2>Room Information</h2>
+
+  {% if msg %}
+    <p>{{ msg }}</p>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('room_info') }}">
+    <label>Room Number</label><br>
+    <input type="text" name="room_number" required><br><br>
+
+    <label>Room Type</label><br>
+    <input type="text" name="room_type" required><br><br>
+
+    <label>Price</label><br>
+    <input type="number" step="0.01" name="price" required><br><br>
+
+    <label>Status</label><br>
+    <select name="status">
+      <option value="Available">Available</option>
+      <option value="Occupied">Occupied</option>
+      <option value="Maintenance">Maintenance</option>
+    </select><br><br>
+
+    <button type="submit">Save Room</button>
+  </form>
+
+  <p>Total: {{ total_rooms }} | Occupied: {{ occupied_count }}</p>
+
+  <h3>Rooms</h3>
+  <table border="1" cellpadding="4">
+    <tr>
+      <th>ID</th><th>No</th><th>Type</th><th>Price</th><th>Status</th><th>Action</th>
+    </tr>
+    {% for r in rooms %}
+    <tr>
+      <td>{{ r[0] }}</td>
+      <td>{{ r[1] }}</td>
+      <td>{{ r[2] }}</td>
+      <td>{{ r[3] }}</td>
+      <td>{{ r[4] }}</td>
+      <td>
+        <form method="POST" action="{{ url_for('room_info') }}" style="display:inline">
+          <input type="hidden" name="delete_id" value="{{ r[0] }}">
+          <button type="submit" onclick="return confirm('Delete room?')">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <p><a href="{{ url_for('admin_dashboard') }}">Back</a></p>
+</body>
+</html>
