@@ -9,13 +9,22 @@ app.secret_key = "your_secret_key"
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "admin123"
 
+# ONE LOGIN PAGE FOR ADMIN AND USER
 @app.route("/", methods=["GET", "POST"])
-def user_login():
+def login():
     msg = ""
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
 
+        # ADMIN LOGIN CHECK
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session["loggedin"] = True
+            session["username"] = username
+            session["role"] = "admin"
+            return redirect(url_for("admin_dashboard"))
+
+        # USER LOGIN CHECK
         conn = get_db_connection()
         cur = conn.cursor()
 
@@ -33,27 +42,12 @@ def user_login():
         else:
             msg = "Invalid account"
 
-    return render_template("user_login.html", msg=msg)
+    return render_template("login.html", msg=msg)
 
-@app.route("/admin", methods=["GET", "POST"])
-def admin_login():
-    msg = ""
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
 
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            session["loggedin"] = True
-            session["username"] = username
-            session["role"] = "admin"
-            return redirect(url_for("admin_dashboard"))
-        else:
-            msg = "Invalid admin login"
-
-    return render_template("admin_login.html", msg=msg)
-
+# ONE REGISTER PAGE FOR USER ONLY
 @app.route("/register", methods=["GET", "POST"])
-def register_user():
+def register():
     msg = ""
     if request.method == "POST":
         username = request.form["username"]
@@ -63,24 +57,26 @@ def register_user():
         cur = conn.cursor()
 
         cur.execute("SELECT * FROM users WHERE username=%s", (username,))
-        existing = cur.fetchone()
+        exist = cur.fetchone()
 
-        if existing:
-            msg = "Username already exists"
+        if exist:
+            msg = "Username exists"
         else:
-            cur.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password))
+            cur.execute("INSERT INTO users (username, password) VALUES (%s,%s)", (username, password))
             conn.commit()
             msg = "Account created"
 
         cur.close()
         conn.close()
 
-    return render_template("register_user.html", msg=msg)
+    return render_template("register.html", msg=msg)
+
 
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect(url_for("user_login"))
+    return redirect(url_for("login"))
+
 
 # DASHBOARDS
 @app.route("/admin_dashboard")
